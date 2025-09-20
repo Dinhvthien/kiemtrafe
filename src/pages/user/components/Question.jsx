@@ -5,7 +5,7 @@ const Question = ({ question, index }) => {
   const displayNumber = index + 1;
   // Vẫn lưu questionId để nộp kết quả
   const questionId = question.questionId || question.id;
-  const questionText = question.content || question.text;
+  const questionText = question.content || question.text || question.questionText;
   const questionOptions = question.options || [];
 
   return (
@@ -24,7 +24,7 @@ const Question = ({ question, index }) => {
       <div className="space-y-3 pl-14">
         {questionOptions.map((option, optionIndex) => {
           // Xử lý trường hợp option là object hoặc string
-          const optionValue = typeof option === 'object' ? (option.content || option.optionLabel || option.text) : option;
+          const optionValue = typeof option === 'object' ? (option.content || option.optionLabel || option.text || option.optionText) : option;
           const optionId = typeof option === 'object' ? option.optionId : optionIndex;
           const optionLabel = String.fromCharCode(65 + optionIndex); // A, B, C, D...
           

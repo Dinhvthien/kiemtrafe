@@ -4,7 +4,6 @@ import AddStudentModal from '../components/AddStudentModal';
 import UpdateClassesModal from '../components/UpdateClassesModal';
 import UpdateStudentModal from '../components/UpdateStudentModal';
 import ClassStudentList from '../components/ClassStudentList';
- // Import Notification component
 import Notification from '../../Notification';
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -22,14 +21,14 @@ const StudentManagementPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [pageSize] = useState(10);
-  const [notification, setNotification] = useState({ show: false, message: "", type: "info" }); // State cho thông báo
+  const [notification, setNotification] = useState({ show: false, message: "", type: "info" });
 
   const showNotification = (message, type = "info") => {
     setNotification({ show: true, message, type });
     setTimeout(() => setNotification({ show: false, message: "", type: "info" }), 3000);
   };
 
-  // Tải danh sách học sinh với tìm kiếm và phân trang
+  // Tải danh sách học sinh
   const fetchStudents = async (page = 0, search = '') => {
     setLoading(true);
     try {
@@ -37,19 +36,13 @@ const StudentManagementPage = () => {
         page: page.toString(),
         size: pageSize.toString(),
       });
-      if (search) {
-        params.append('search', search);
-      }
+      if (search) params.append('search', search);
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/students?${params}`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Không thể tải danh sách học sinh');
       const data = await response.json();
-      console.log("Students data from API:", data);
-      console.log("Students array:", data.result.content);
       setStudents(data.result.content || []);
       setTotalPages(data.result.totalPages || 0);
     } catch (err) {
@@ -64,9 +57,7 @@ const StudentManagementPage = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/classes?page=0&size=10`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Không thể tải danh sách lớp học');
       const data = await response.json();
@@ -76,19 +67,38 @@ const StudentManagementPage = () => {
     }
   };
 
-  // Tải danh sách sinh viên theo lớp
+  // Tải danh sách học sinh theo lớp
   const fetchStudentsByClass = async (classId) => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/student-class/class/${classId}/students`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error('Không thể tải danh sách sinh viên theo lớp');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Không thể tải danh sách học sinh theo lớp');
+      }
       const data = await response.json();
-      setClassStudents(data.result || []);
+      const students = data.result || [];
+      // Lấy điểm xếp loại cho từng học sinh (giả định API)
+      const studentsWithGrades = await Promise.all(
+        students.map(async (student) => {
+          try {
+            const gradeResponse = await fetch(`${apiUrl}/students/${student.studentId}/grades`, {
+              headers: { "Authorization": `Bearer ${token}` },
+            });
+            if (gradeResponse.ok) {
+              const gradeData = await gradeResponse.json();
+              return { ...student, grade: gradeData.result?.grade || 'Chưa có' };
+            }
+            return { ...student, grade: 'Chưa có' };
+          } catch {
+            return { ...student, grade: 'Chưa có' };
+          }
+        })
+      );
+      setClassStudents(studentsWithGrades);
     } catch (err) {
       showNotification(err.message, "error");
     } finally {
@@ -144,6 +154,7 @@ const StudentManagementPage = () => {
       await response.json();
       showNotification('Cập nhật học sinh thành công!', "success");
       fetchStudents(currentPage, searchTerm);
+      fetchStudentsByClass(selectedClassId); // Cập nhật danh sách lớp
       setShowUpdateStudentModal(false);
     } catch (err) {
       showNotification(err.message, "error");
@@ -160,9 +171,7 @@ const StudentManagementPage = () => {
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/students/${studentId}`, {
         method: 'DELETE',
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
       });
       if (!response.ok) {
         const errorData = await response.json();
@@ -171,6 +180,7 @@ const StudentManagementPage = () => {
       await response.json();
       showNotification('Xóa học sinh thành công!', "success");
       fetchStudents(currentPage, searchTerm);
+      if (selectedClassId) fetchStudentsByClass(selectedClassId); // Cập nhật danh sách lớp
     } catch (err) {
       showNotification(err.message, "error");
     } finally {
@@ -182,13 +192,7 @@ const StudentManagementPage = () => {
   const handleUpdateClasses = async (studentId, classIds) => {
     setLoading(true);
     try {
-      console.log("Updating classes for studentId:", studentId);
-      console.log("Class IDs:", classIds);
-      
-      if (!studentId) {
-        throw new Error('Không tìm thấy ID học sinh để cập nhật');
-      }
-      
+      if (!studentId) throw new Error('Không tìm thấy ID học sinh để cập nhật');
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/students/${studentId}/classes`, {
         method: 'PUT',
@@ -205,6 +209,7 @@ const StudentManagementPage = () => {
       await response.json();
       showNotification('Cập nhật lớp học thành công!', "success");
       setShowUpdateModal(false);
+      if (selectedClassId) fetchStudentsByClass(selectedClassId); // Cập nhật danh sách lớp
     } catch (err) {
       showNotification(err.message, "error");
     } finally {
@@ -228,26 +233,15 @@ const StudentManagementPage = () => {
     fetchStudents(page, searchTerm);
   };
 
-  // Lấy thông tin lớp học của học sinh trước khi mở modal
   const prepareUpdateClasses = async (student) => {
     try {
-      console.log("Student object:", student);
-      console.log("Student ID:", student.studentId);
-      
-      if (!student.studentId) {
-        throw new Error('Không tìm thấy ID học sinh');
-      }
-      
+      if (!student.studentId) throw new Error('Không tìm thấy ID học sinh');
       const token = localStorage.getItem("token");
       const response = await fetch(`${apiUrl}/students/${student.studentId}/with-classes`, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
+        headers: { "Authorization": `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Không thể tải thông tin lớp học');
       const data = await response.json();
-      console.log("Student with classes data:", data);
-      console.log("Student result:", data.result);
       setSelectedStudent(data.result);
       setShowUpdateModal(true);
     } catch (err) {
@@ -268,7 +262,7 @@ const StudentManagementPage = () => {
                 const classId = e.target.value ? parseInt(e.target.value) : null;
                 setSelectedClassId(classId);
                 if (classId) fetchStudentsByClass(classId);
-                else setClassStudents([]); // Ẩn danh sách khi không chọn lớp
+                else setClassStudents([]);
               }}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
@@ -319,7 +313,15 @@ const StudentManagementPage = () => {
             />
           )}
           {selectedClassId && (
-            <ClassStudentList students={classStudents} className={classes.find((c) => c.classId === selectedClassId)?.className || ''} />
+            <ClassStudentList
+              students={classStudents}
+              className={classes.find((c) => c.classId === selectedClassId)?.className || ''}
+              classId ={selectedClassId}
+              onUpdate={(student) => {
+                setSelectedStudent(student);
+                setShowUpdateStudentModal(true);
+              }}
+            />
           )}
           {!selectedClassId && (
             <div className="flex justify-center mt-4 space-x-2">

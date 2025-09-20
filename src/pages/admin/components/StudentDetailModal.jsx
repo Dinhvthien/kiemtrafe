@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 
 const StudentDetailModal = ({ isOpen, onClose, studentDetails, onUpdateClasses, classes }) => {
   const [selectedClassIds, setSelectedClassIds] = useState([]);
-  const [currentClasses, setCurrentClasses] = useState([]);
 
   useEffect(() => {
-    if (studentDetails) {
-      setCurrentClasses(studentDetails.classes || []);
-      setSelectedClassIds(studentDetails.classes.map((cls) => cls.classId));
+    if (studentDetails && studentDetails.classes) {
+      setSelectedClassIds(studentDetails.classes.map((cls) => cls.classId) || []);
+    } else {
+      setSelectedClassIds([]);
     }
   }, [studentDetails]);
 
@@ -17,11 +17,13 @@ const StudentDetailModal = ({ isOpen, onClose, studentDetails, onUpdateClasses, 
   };
 
   const handleUpdate = () => {
-    onUpdateClasses(studentDetails.student.studentId, selectedClassIds);
-    onClose();
+    if (studentDetails?.student?.studentId) {
+      onUpdateClasses(studentDetails.student.studentId, selectedClassIds);
+      onClose();
+    }
   };
 
-  if (!isOpen || !studentDetails) return null;
+  if (!isOpen || !studentDetails || !studentDetails.student) return null;
 
   const { student } = studentDetails;
 
@@ -32,9 +34,23 @@ const StudentDetailModal = ({ isOpen, onClose, studentDetails, onUpdateClasses, 
         <div className="space-y-2">
           <p><strong>ID:</strong> {student.studentId}</p>
           <p><strong>Tên:</strong> {student.userName}</p>
-          <p><strong>Số điện thoại:</strong> {student.phoneNumber}</p>
-          <p><strong>Email:</strong> {student.email}</p>
+          <p><strong>Số điện thoại:</strong> {student.phoneNumber || 'N/A'}</p>
+          <p><strong>Email:</strong> {student.email || 'N/A'}</p>
           <p><strong>Trạng thái:</strong> {student.status ? 'Hoạt động' : 'Không hoạt động'}</p>
+          
+          <h3 className="text-lg font-semibold mt-4">Lớp học hiện tại</h3>
+          {studentDetails.classes && studentDetails.classes.length > 0 ? (
+            <ul className="list-disc pl-5">
+              {studentDetails.classes.map((cls) => (
+                <li key={cls.classId}>
+                  {cls.className} ({cls.classCode})
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-500">Chưa tham gia lớp học nào</p>
+          )}
+
           <h3 className="text-lg font-semibold mt-4">Quản lý lớp học</h3>
           <div>
             <label className="block text-sm font-medium text-gray-700">Chọn lớp học</label>
@@ -62,6 +78,7 @@ const StudentDetailModal = ({ isOpen, onClose, studentDetails, onUpdateClasses, 
             <button
               className="bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-md"
               onClick={handleUpdate}
+              disabled={!studentDetails.student.studentId}
             >
               Lưu thay đổi
             </button>

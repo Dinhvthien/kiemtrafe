@@ -22,6 +22,16 @@ const ResultModal = ({ isOpen, message, onClose, studentInfo }) => {
     navigate('/'); // Chuyển về trang home
   };
 
+  const handleViewResult = () => {
+    // Lưu thông tin cần thiết vào localStorage
+    localStorage.setItem('phoneNumber', studentInfo?.phone || localStorage.getItem('userPhoneNumber') || '');
+    localStorage.setItem('userName', studentInfo?.name || localStorage.getItem('userName') || '');
+    localStorage.setItem('userClassCode', studentInfo?.classCode || localStorage.getItem('userClassCode') || '');
+    
+    onClose();
+    navigate('/exam-result'); // Chuyển đến trang kết quả chi tiết
+  };
+
   if (!isOpen) return null;
   
   return (
@@ -52,14 +62,20 @@ const ResultModal = ({ isOpen, message, onClose, studentInfo }) => {
             </div>
           </div>
           
-          <div className="flex justify-end">
+          <div className="flex justify-end space-x-3">
             <button 
-              id="closeResult" 
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center"
+              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors flex items-center"
               onClick={handleClose}
             >
               <span>Về trang chủ</span>
               <i className="fas fa-home ml-2"></i>
+            </button>
+            <button 
+              className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors flex items-center"
+              onClick={handleViewResult}
+            >
+              <span>Xem kết quả chi tiết</span>
+              <i className="fas fa-chart-line ml-2"></i>
             </button>
           </div>
         </div>

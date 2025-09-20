@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import ExamTest from '../pages/ExamTest';
 import ExamCheckForm from '../pages/ExamCheckForm';
 import ExamPage from '../pages/ExamPage';
+import ExamResultPage from '../pages/ExamResultPage';
 import LoginPage from '../pages/LoginPage';
 
 export const userRoutes = [
@@ -37,6 +38,14 @@ export const userRoutes = [
     element: (
       <UserLayout>
         <ExamPage />
+      </UserLayout>
+    ),
+  },
+  {
+    path: '/exam-result',
+    element: (
+      <UserLayout>
+        <ExamResultPage />
       </UserLayout>
     ),
   },
