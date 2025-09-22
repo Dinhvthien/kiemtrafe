@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { fetchWithAuth } from '../../../services/user/api';
 const ExamForm = ({ mode = 'create', exam, onSuccess }) => {
   const [formData, setFormData] = useState({
     examCode: '',
@@ -27,12 +27,10 @@ const ExamForm = ({ mode = 'create', exam, onSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const token = localStorage.getItem('token');
-    const apiUrl = import.meta.env.VITE_API_URL;
-
     try {
       let response;
       if (mode === 'create') {
-        response = await fetch(`${apiUrl}/exams`, {
+        response = await fetchWithAuth(`/exams`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -41,7 +39,7 @@ const ExamForm = ({ mode = 'create', exam, onSuccess }) => {
           body: JSON.stringify(formData),
         });
       } else if (mode === 'edit' && exam?.examId) {
-        response = await fetch(`${apiUrl}/exams/${exam.examId}`, {
+        response = await fetchWithAuth(`/exams/${exam.examId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

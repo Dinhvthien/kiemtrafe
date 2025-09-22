@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ShowDetailExamModal from '../components/ShowDetailExamModal';
-
+import { fetchWithAuth } from '../../../services/user/api';
 const ClassStudentList = ({ students, className, classId }) => {
   const [selectedStudentId, setSelectedStudentId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,14 +14,10 @@ const ClassStudentList = ({ students, className, classId }) => {
     setIsModalOpen(false);
     setSelectedStudentId(null);
   };
-  const token = localStorage.getItem('token'); 
   const handleDownloadExcel = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/lms/exams-result/export/${classId}`, {
+      const response = await fetchWithAuth(`/exams-result/export/${classId}`, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
       });
 
       if (!response.ok) {

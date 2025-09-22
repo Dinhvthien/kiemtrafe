@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { fetchWithAuth } from "../../../services/user/api";
 
 const ShowDetailExamModal = ({ studentId, onClose }) => {
   const [examResults, setExamResults] = useState([]);
@@ -14,7 +15,7 @@ const ShowDetailExamModal = ({ studentId, onClose }) => {
         setError(null);
 
         // Gọi API thực tế
-        const response = await fetch(`http://localhost:8080/lms/students/${studentId}`, {
+        const response = await fetchWithAuth(`/students/${studentId}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';  // để điều hướng
-
- const apiUrl = import.meta.env.VITE_API_URL;
+import { fetchWithAuth } from '../../../services/user/api';
 const ClassesPage = () => {
   const [classes, setClasses] = useState([]);
   const [page, setPage] = useState(0);
@@ -13,7 +12,7 @@ const ClassesPage = () => {
   const fetchClasses = async (pageNumber) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/classes?page=${pageNumber}&size=10`);
+      const response = await fetchWithAuth(`/classes?page=${pageNumber}&size=10`);
       if (!response.ok) {
         throw new Error('Failed to fetch classes');
       }
@@ -34,7 +33,7 @@ const handleDelete = async (classId) => {
   if (!window.confirm('Bạn có chắc muốn xóa lớp học này?')) return;
   try {
     const token = localStorage.getItem("token"); // lấy token từ localStorage
-    const response = await fetch(`${apiUrl}/classes/${classId}`, {
+    const response = await fetchWithAuth(`/classes/${classId}`, {
       method: "DELETE",
       headers: {
         "Authorization": `Bearer ${token}`, // thêm token vào đây

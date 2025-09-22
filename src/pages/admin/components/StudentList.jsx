@@ -1,7 +1,6 @@
-
 import React from 'react';
 
-const StudentList = ({ students, onUpdateClasses, onUpdate, onDelete }) => (
+const StudentList = ({ students, onUpdateClasses, onUpdate, onToggleStatus }) => (
   <div className="mt-6">
     <h2 className="text-2xl font-bold text-gray-800 mb-4">Danh sách học sinh</h2>
     <div className="overflow-x-auto shadow-md rounded-lg">
@@ -38,10 +37,12 @@ const StudentList = ({ students, onUpdateClasses, onUpdate, onDelete }) => (
                   Sửa
                 </button>
                 <button
-                  className="bg-red-500 hover:bg-red-700 text-white px-3 py-1 rounded-md transition"
-                  onClick={() => onDelete(student.studentId)}
+                  className={`${
+                    student.status ? 'bg-red-500 hover:bg-red-700' : 'bg-green-500 hover:bg-green-700'
+                  } text-white px-3 py-1 rounded-md transition`}
+                  onClick={() => onToggleStatus(student.studentId)}
                 >
-                  Xóa
+                  {student.status ? 'Vô hiệu hóa' : 'Kích hoạt'}
                 </button>
               </td>
             </tr>

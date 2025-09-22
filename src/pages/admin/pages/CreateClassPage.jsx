@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
- const apiUrl = import.meta.env.VITE_API_URL;
+import { fetchWithAuth } from '../../../services/user/api';
 const CreateClassPage = () => {
   const [formData, setFormData] = useState({
     classCode: '',
@@ -18,7 +18,7 @@ const CreateClassPage = () => {
   // Tải danh sách đề thi
   const fetchExams = async () => {
     try {
-      const response = await fetch(`${apiUrl}/exams?page=0&size=10`);
+      const response = await fetchWithAuth(`/exams?page=0&size=10`);
       if (!response.ok) {
         throw new Error('Không thể tải danh sách đề thi');
       }
@@ -54,7 +54,7 @@ const CreateClassPage = () => {
     setSuccess(null);
 
     try {
-      const response = await fetch(`${apiUrl}/classes`, {
+      const response = await fetchWithAuth(`/classes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

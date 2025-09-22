@@ -1,16 +1,15 @@
 import React from 'react';
-
+import { fetchWithAuth } from '../../../services/user/api';
 const Header = () => {
   const handleLogout = async () => {
     const token = localStorage.getItem("token");
 
     try {
       // gọi API logout
-      const response = await fetch("http://localhost:8080/lms/auth/logout", {
+      const response = await fetchWithAuth("/auth/logout", {
         method: "POST", // hoặc "DELETE" tuỳ backend bạn định nghĩa
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // nếu backend check JWT từ header
         },
         body: JSON.stringify({ token }), // nếu backend nhận token trong body
       });

@@ -1,7 +1,7 @@
 const apiUrl = import.meta.env.VITE_API_URL;
 export const submitExamData = async (examData) => {
   try {
-    const response = await fetch(`${apiUrl}/exam-submissions`, {
+    const response = await fetchWithAuth(`/exam-submissions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,7 +31,7 @@ export const submitExamData = async (examData) => {
 // API để lấy kết quả chi tiết bài thi của student
 export const getExamResult = async (submissionId) => {
   try {
-    const response = await fetch(`${apiUrl}/exam-submissions/${submissionId}/result`, {
+    const response = await fetchWithAuth(`/exam-submissions/${submissionId}/result`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +59,7 @@ export const getExamResult = async (submissionId) => {
 // API để lấy kết quả bài thi theo examId và phoneNumber
 export const getExamResultByStudent = async (examId, phoneNumber) => {
   try {
-    const response = await fetch(`${apiUrl}/exam-submissions/result`, {
+    const response = await fetchWithAuth(`/exam-submissions/result`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -127,7 +127,6 @@ export async function fetchWithAuth(url, options = {}) {
       return retryResponse;
     } catch (error) {
       localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
       window.location.href = "/login";
       throw error;
     }

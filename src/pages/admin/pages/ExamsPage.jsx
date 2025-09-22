@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ExamList from '../components/ExamList';
 import ExamForm from '../components/ExamForm';
 import QuestionForm from '../components/QuestionForm';
-
-const apiUrl = import.meta.env.VITE_API_URL;
+import { fetchWithAuth } from '../../../services/user/api';
 const ExamsPage = () => {
   useNavigate();
   const [exams, setExams] = useState([]);
@@ -22,7 +21,7 @@ const ExamsPage = () => {
   const fetchExams = async (pageNumber) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/exams?page=${pageNumber}&size=10`);
+      const response = await fetchWithAuth(`/exams?page=${pageNumber}&size=10`);
       if (!response.ok) {
         throw new Error('Không thể tải danh sách đề thi');
       }
@@ -84,7 +83,7 @@ const ExamsPage = () => {
   const handleEditExam = async (examId) => {
     setLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/exams/${examId}`, {
+      const response = await fetchWithAuth(`/exams/${examId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -122,7 +121,7 @@ const ExamsPage = () => {
         onDelete={async (examId) => {
           if (window.confirm('Bạn có chắc muốn xóa đề thi này?')) {
             try {
-              const response = await fetch(`${apiUrl}/exams/${examId}`, {
+              const response = await fetchWithAuth(`/exams/${examId}`, {
                 method: 'DELETE',
                 headers: {
                   Authorization: `Bearer ${token}`,

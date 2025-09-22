@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { fetchWithAuth } from '../../../services/user/api';
 const EditClassPage = () => {
   const { classId } = useParams();
   const navigate = useNavigate();
@@ -16,11 +17,10 @@ const EditClassPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
- const apiUrl = import.meta.env.VITE_API_URL;
   // Tải thông tin lớp học
   const fetchClassData = async () => {
     try {
-      const classResponse = await fetch(`${apiUrl}/classes/${classId}`);
+      const classResponse = await fetchWithAuth(`/classes/${classId}`);
       if (!classResponse.ok) {
         throw new Error('Không thể tải thông tin lớp học');
       }
@@ -37,7 +37,7 @@ const EditClassPage = () => {
       });
 
       // Tải danh sách đề thi liên kết để kiểm tra
-      const classExamsResponse = await fetch(`${apiUrl}/classexams/class/${classId}`);
+      const classExamsResponse = await fetchWithAuth(`/classexams/class/${classId}`);
       if (!classExamsResponse.ok) {
         throw new Error('Không thể tải danh sách đề thi liên kết');
       }
@@ -53,7 +53,7 @@ const EditClassPage = () => {
   // Tải danh sách tất cả đề thi
   const fetchExams = async () => {
     try {
-      const response = await fetch(`${apiUrl}/exams?page=0&size=10`);
+      const response = await fetchWithAuth(`/exams?page=0&size=10`);
       if (!response.ok) {
         throw new Error('Không thể tải danh sách đề thi');
       }
@@ -90,7 +90,7 @@ const EditClassPage = () => {
     setSuccess(null);
     const token = localStorage.getItem("token");
     try {
-      const response = await fetch(`${apiUrl}/classes/${classId}`, {
+      const response = await fetchWithAuth(`/classes/${classId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
