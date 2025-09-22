@@ -1,5 +1,5 @@
 import React from 'react';
-import UserLayout from '../layouts/userLayout';
+import UserLayout from '../layouts/UserLayout';
 import Home from '../pages/Home';
 import ExamTest from '../pages/ExamTest';
 import ExamCheckForm from '../pages/ExamCheckForm';
