@@ -6,14 +6,14 @@ const Sidebar = () => {
         <aside className="bg-gray-100 w-64 h-screen p-4">
             <nav>
                 <ul className="space-y-2">
-                    <li>
+                    {/* <li>
                         <Link
                             to="/dashboard"
                             className="block p-2 hover:bg-gray-200 rounded transition-colors"
                         >
                             Dashboard
                         </Link>
-                    </li>
+                    </li> */}
                     <li>
                         <Link
                             to="/classes"
